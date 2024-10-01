@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wizard with Flows</title>
+    <title>Wizard with Image Selector</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,7 +20,7 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            width: 300px;
+            width: 400px;
             text-align: center;
         }
         .step {
@@ -28,6 +28,22 @@
         }
         .step.active {
             display: block;
+        }
+        .image-selector {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        .image-selector img {
+            width: 70px;
+            height: 70px;
+            margin: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 8px;
+        }
+        .image-selector img.selected {
+            border-color: #007bff;
         }
         button {
             margin-top: 20px;
@@ -48,20 +64,12 @@
 
 <div class="container">
     <div id="wizard">
-        <!-- Step 1: Choose a type -->
+        <!-- Step 1: Choose a type (image selector) -->
         <div class="step active" id="step1">
             <h2>Choose a type</h2>
-            <select id="typeSelect">
-                <option value="">Select Type</option>
-                <option value="1">Type 1</option>
-                <option value="2">Type 2</option>
-                <option value="3">Type 3</option>
-                <option value="4">Type 4</option>
-                <option value="5">Type 5</option>
-                <option value="6">Type 6</option>
-                <option value="7">Type 7</option>
-                <option value="8">Type 8</option>
-            </select>
+            <div class="image-selector" id="typeImages">
+                <!-- Images will be loaded dynamically -->
+            </div>
             <button id="nextToStep2" disabled>Next</button>
         </div>
 
@@ -107,12 +115,32 @@
     let selectedNumber = null;
     let selectedText = null;
 
-    // Step 1: Choose Type
-    const typeSelect = document.getElementById('typeSelect');
+    // Step 1: Image Selector
+    const types = [
+        {id: 1, image: 'type1.png'},
+        {id: 2, image: 'type2.png'},
+        {id: 3, image: 'type3.png'},
+        {id: 4, image: 'type4.png'},
+        {id: 5, image: 'type5.png'},
+        {id: 6, image: 'type6.png'},
+        {id: 7, image: 'type7.png'},
+        {id: 8, image: 'type8.png'}
+    ];
+
+    const typeImagesContainer = document.getElementById('typeImages');
     const nextToStep2 = document.getElementById('nextToStep2');
-    typeSelect.addEventListener('change', () => {
-        selectedType = parseInt(typeSelect.value);
-        nextToStep2.disabled = !selectedType;
+
+    types.forEach(type => {
+        const img = document.createElement('img');
+        img.src = type.image;
+        img.alt = `Type ${type.id}`;
+        img.addEventListener('click', () => {
+            document.querySelectorAll('.image-selector img').forEach(img => img.classList.remove('selected'));
+            img.classList.add('selected');
+            selectedType = type.id;
+            nextToStep2.disabled = false;
+        });
+        typeImagesContainer.appendChild(img);
     });
 
     nextToStep2.addEventListener('click', () => {
