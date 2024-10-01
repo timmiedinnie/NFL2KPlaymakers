@@ -45,6 +45,26 @@
         .image-selector img.selected {
             border-color: #007bff;
         }
+        .number-selector {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .number-selector div {
+            width: 50px;
+            height: 50px;
+            background-color: #f0f0f0;
+            border: 2px solid transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .number-selector div.selected {
+            border-color: #007bff;
+            background-color: #e0e0ff;
+        }
         button {
             margin-top: 20px;
             padding: 10px 20px;
@@ -73,10 +93,14 @@
             <button id="nextToStep2" disabled>Next</button>
         </div>
 
-        <!-- Step 2: Choose a number -->
+        <!-- Step 2: Number Selector -->
         <div class="step" id="step2">
-            <h2>Enter a number</h2>
-            <input type="number" id="numberInput" min="1" max="3" placeholder="Enter a number (1, 2, or 3)">
+            <h2>Choose a number</h2>
+            <div class="number-selector" id="numberSelector">
+                <div data-number="1">1</div>
+                <div data-number="2">2</div>
+                <div data-number="3">3</div>
+            </div>
             <button id="nextToStep3" disabled>Next</button>
         </div>
 
@@ -102,65 +126,54 @@
 
 <script>
     let flows = [];
-    let types = [];
-    
     let selectedType = null;
     let selectedNumber = null;
     let selectedText = null;
 
-    // Load flows from external JSON file
-    async function loadFlows() {
-        const response = await fetch('flows.json'); // Path to external JSON file
-        flows = await response.json();
-    }
-
-    // Load flows and initialize the wizard
-    loadFlows().then(() => {
-        console.log('Flows loaded:', flows);
-    });    
-    // Load flows from external JSON file
-    async function loadImages() {
-        const response = await fetch('images.json'); // Path to external JSON file
-        types = await response.json();
-    }
-
-    // Load flows and initialize the wizard
-    loadImages().then(() => {
-        console.log('Flows loaded:', types);
-    });
-
-    const typeImagesContainer = document.getElementById('typeImages');
-    const nextToStep2 = document.getElementById('nextToStep2');
-
-    types.forEach(type => {
-        const img = document.createElement('img');
-        img.src = type.image;
-        img.alt = `Type ${type.id}`;
-        img.addEventListener('click', () => {
-            document.querySelectorAll('.image-selector img').forEach(img => img.classList.remove('selected'));
-            img.classList.add('selected');
-            selectedType = type.id;
-            nextToStep2.disabled = false;
+    // Load flow data from external JSON
+    fetch('flows.json') // Change this to your external JSON path
+        .then(response => response.json())
+        .then(data => {
+            flows = data.flows;
         });
-        typeImagesContainer.appendChild(img);
-    });
+
+    // Load images from external JSON
+    fetch('images.json') // Change this to your external images.json path
+        .then(response => response.json())
+        .then(data => {
+            const typeImagesContainer = document.getElementById('typeImages');
+            data.forEach(type => {
+                const img = document.createElement('img');
+                img.src = type.image;
+                img.alt = `Type ${type.id}`;
+                img.addEventListener('click', () => {
+                    document.querySelectorAll('.image-selector img').forEach(img => img.classList.remove('selected'));
+                    img.classList.add('selected');
+                    selectedType = type.id;
+                    document.getElementById('nextToStep2').disabled = false;
+                });
+                typeImagesContainer.appendChild(img);
+            });
+        });
+
+    const nextToStep2 = document.getElementById('nextToStep2');
 
     nextToStep2.addEventListener('click', () => {
         document.getElementById('step1').classList.remove('active');
         document.getElementById('step2').classList.add('active');
     });
 
-    // Step 2: Enter Number
-    const numberInput = document.getElementById('numberInput');
+    // Step 2: Number Selector
+    const numberSelector = document.getElementById('numberSelector');
     const nextToStep3 = document.getElementById('nextToStep3');
-    numberInput.addEventListener('input', () => {
-        const number = parseInt(numberInput.value);
-        if (number >= 1 && number <= 3) {
-            selectedNumber = number;
+    numberSelector.addEventListener('click', (event) => {
+        const numberDiv = event.target.closest('div');
+        if (numberDiv && numberDiv.dataset.number) {
+            document.querySelectorAll('.number-selector div').forEach(div => div.classList.remove('selected'));
+            numberDiv.classList.add('selected');
+            selectedNumber = parseInt(numberDiv.dataset.number);
             nextToStep3.disabled = false;
-            checkForImmediateOutcome();  // Immediately check the flow
-        } else {
-            nextToStep3.disabled = true;
+            checkForImmediateOutcome(); // Immediately check for a flow match
         }
     });
 
@@ -174,7 +187,7 @@
     const showResult = document.getElementById('showResult');
     textSelect.addEventListener('change', () => {
         selectedText = textSelect.value || null;
-        checkForImmediateOutcome();  // Check the flow when text is selected
+        checkForImmediateOutcome(); // Check for a flow match when text is selected
     });
 
     showResult.addEventListener('click', () => {
