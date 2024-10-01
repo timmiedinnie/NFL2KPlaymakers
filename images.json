@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "image": "captain.png"
+  },
+  {
+    "id": 2,
+    "image": "clipboard.png"
+  },
+  {
+    "id": 3,
+    "image": "hand.png"
+  },
+  {
+    "id": 4,
+    "image": "heart.png"
+  },
+  {
+    "id": 5,
+    "image": "lightning.png"
+  },
+  {
+    "id": 6,
+    "image": "sniper.png"
+  },
+  {
+    "id": 7,
+    "image": "star.png"
+  },
+  {
+    "id": 8,
+    "image": "strong.png"
+  }
+]
