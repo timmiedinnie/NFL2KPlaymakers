@@ -1,1 +1,164 @@
-<h1>Hello World</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wizard with Flows</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 300px;
+            text-align: center;
+        }
+        .step {
+            display: none;
+        }
+        .step.active {
+            display: block;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: grey;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="wizard">
+        <!-- Step 1: Choose a type -->
+        <div class="step active" id="step1">
+            <h2>Choose a type</h2>
+            <select id="typeSelect">
+                <option value="">Select Type</option>
+                <option value="1">Type 1</option>
+                <option value="2">Type 2</option>
+                <option value="3">Type 3</option>
+                <option value="4">Type 4</option>
+                <option value="5">Type 5</option>
+                <option value="6">Type 6</option>
+                <option value="7">Type 7</option>
+                <option value="8">Type 8</option>
+            </select>
+            <button id="nextToStep2" disabled>Next</button>
+        </div>
+
+        <!-- Step 2: Choose a number -->
+        <div class="step" id="step2">
+            <h2>Enter a number</h2>
+            <input type="number" id="numberInput" min="1" max="3" placeholder="Enter a number (1, 2, or 3)">
+            <button id="nextToStep3" disabled>Next</button>
+        </div>
+
+        <!-- Step 3: Optional Text -->
+        <div class="step" id="step3">
+            <h2>Choose optional text</h2>
+            <select id="textSelect">
+                <option value="">No Text</option>
+                <option value="texta">Text A</option>
+                <option value="other text">Other Text</option>
+            </select>
+            <button id="showResult">Show Result</button>
+        </div>
+
+        <!-- Result step -->
+        <div class="step" id="resultStep">
+            <h2>Result</h2>
+            <p id="result"></p>
+            <button onclick="location.reload()">Start Over</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const flows = [
+        {"type": 1, "number": 2, "text": null, "outcome": "yes"},
+        {"type": 1, "number": 3, "text": null, "outcome": "no"},
+        {"type": 2, "number": 2, "text": null, "outcome": "yes"},
+        {"type": 2, "number": 3, "text": null, "outcome": "no"},
+        {"type": 3, "number": 3, "text": null, "outcome": "yes"},
+        {"type": 3, "number": 2, "text": "texta", "outcome": "yes"},
+        {"type": 3, "number": 2, "text": "other text", "outcome": "no"}
+    ];
+
+    let selectedType = null;
+    let selectedNumber = null;
+    let selectedText = null;
+
+    // Step 1: Choose Type
+    const typeSelect = document.getElementById('typeSelect');
+    const nextToStep2 = document.getElementById('nextToStep2');
+    typeSelect.addEventListener('change', () => {
+        selectedType = parseInt(typeSelect.value);
+        nextToStep2.disabled = !selectedType;
+    });
+
+    nextToStep2.addEventListener('click', () => {
+        document.getElementById('step1').classList.remove('active');
+        document.getElementById('step2').classList.add('active');
+    });
+
+    // Step 2: Enter Number
+    const numberInput = document.getElementById('numberInput');
+    const nextToStep3 = document.getElementById('nextToStep3');
+    numberInput.addEventListener('input', () => {
+        const number = parseInt(numberInput.value);
+        if (number >= 1 && number <= 3) {
+            selectedNumber = number;
+            nextToStep3.disabled = false;
+        } else {
+            nextToStep3.disabled = true;
+        }
+    });
+
+    nextToStep3.addEventListener('click', () => {
+        document.getElementById('step2').classList.remove('active');
+        document.getElementById('step3').classList.add('active');
+    });
+
+    // Step 3: Choose Optional Text
+    const textSelect = document.getElementById('textSelect');
+    const showResult = document.getElementById('showResult');
+    textSelect.addEventListener('change', () => {
+        selectedText = textSelect.value || null;
+    });
+
+    showResult.addEventListener('click', () => {
+        document.getElementById('step3').classList.remove('active');
+        document.getElementById('resultStep').classList.add('active');
+        
+        const result = flows.find(flow => 
+            flow.type === selectedType && 
+            flow.number === selectedNumber && 
+            flow.text === selectedText
+        );
+        
+        const outcome = result ? result.outcome : "No matching flow";
+        document.getElementById('result').textContent = `Outcome: ${outcome}`;
+    });
+</script>
+
+</body>
+</html>
