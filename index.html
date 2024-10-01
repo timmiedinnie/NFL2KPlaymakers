@@ -78,6 +78,14 @@
             background-color: grey;
             cursor: not-allowed;
         }
+	    		#beer {
+		  position: fixed;
+		  bottom: 0; /* Aligns it to the bottom of the page */
+		  left: 50%; /* Moves it horizontally to the center */
+		  transform: translateX(-50%); /* Shifts it back to truly center it */
+		  width: 200px; /* Set a width for your div */
+		  text-align: center; /* Center the content inside the div */
+		}
     </style>
 </head>
 <body>
@@ -122,7 +130,7 @@
         </div>
     </div>
 </div>
-
+<div id="beer"><a href="https://paypal.me/timmetjekappa">Buy me a beer?</a></div>
 <script>
     let flows = {
 	  "1": {
