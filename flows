@@ -1,0 +1,9 @@
+[
+        {"type": 1, "number": 2, "text": null, "outcome": "yes"},
+        {"type": 1, "number": 3, "text": null, "outcome": "no"},
+        {"type": 2, "number": 2, "text": null, "outcome": "yes"},
+        {"type": 2, "number": 3, "text": null, "outcome": "no"},
+        {"type": 3, "number": 3, "text": null, "outcome": "yes"},
+        {"type": 3, "number": 2, "text": "texta", "outcome": "yes"},
+        {"type": 3, "number": 2, "text": "other text", "outcome": "no"}
+]
