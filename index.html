@@ -117,14 +117,14 @@
 
     // Step 1: Image Selector
     const types = [
-        {id: 1, image: 'type1.png'},
-        {id: 2, image: 'type2.png'},
-        {id: 3, image: 'type3.png'},
-        {id: 4, image: 'type4.png'},
-        {id: 5, image: 'type5.png'},
-        {id: 6, image: 'type6.png'},
-        {id: 7, image: 'type7.png'},
-        {id: 8, image: 'type8.png'}
+        {id: 1, image: 'captain.png'},
+        {id: 2, image: 'clipboard.png'},
+        {id: 3, image: 'hand.png'},
+        {id: 4, image: 'heart.png'},
+        {id: 5, image: 'lightning.png'},
+        {id: 6, image: 'sniper.png'},
+        {id: 7, image: 'star.png'},
+        {id: 8, image: 'strong.png'}
     ];
 
     const typeImagesContainer = document.getElementById('typeImages');
@@ -156,6 +156,7 @@
         if (number >= 1 && number <= 3) {
             selectedNumber = number;
             nextToStep3.disabled = false;
+            checkForImmediateOutcome();  // Immediately check the flow
         } else {
             nextToStep3.disabled = true;
         }
@@ -171,21 +172,40 @@
     const showResult = document.getElementById('showResult');
     textSelect.addEventListener('change', () => {
         selectedText = textSelect.value || null;
+        checkForImmediateOutcome();  // Check the flow when text is selected
     });
 
     showResult.addEventListener('click', () => {
-        document.getElementById('step3').classList.remove('active');
-        document.getElementById('resultStep').classList.add('active');
-        
+        showOutcome();
+    });
+
+    // Check if an immediate outcome is available without needing Step 3
+    function checkForImmediateOutcome() {
         const result = flows.find(flow => 
             flow.type === selectedType && 
             flow.number === selectedNumber && 
-            flow.text === selectedText
+            (flow.text === selectedText || flow.text === null)
         );
         
+        if (result && (result.text === null || selectedText !== null)) {
+            showOutcome(result);
+        }
+    }
+
+    // Show the outcome step
+    function showOutcome(result) {
+        document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+        document.getElementById('resultStep').classList.add('active');
+        if (!result) {
+            result = flows.find(flow => 
+                flow.type === selectedType && 
+                flow.number === selectedNumber && 
+                (flow.text === selectedText || flow.text === null)
+            );
+        }
         const outcome = result ? result.outcome : "No matching flow";
         document.getElementById('result').textContent = `Outcome: ${outcome}`;
-    });
+    }
 </script>
 
 </body>
