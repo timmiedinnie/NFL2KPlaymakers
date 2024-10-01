@@ -95,7 +95,7 @@
 
         <!-- Step 2: Number Selector -->
         <div class="step" id="step2">
-            <h2>Choose a number</h2>
+            <h2>How many defenders do you see?</h2>
             <div class="number-selector" id="numberSelector">
                 <div data-number="1">1</div>
                 <div data-number="2">2</div>
@@ -106,7 +106,7 @@
 
         <!-- Step 3: Optional Text -->
         <div class="step" id="step3">
-            <h2>Choose optional text</h2>
+            <h2>What do you see?</h2>
             <select id="textSelect">
                 <option value="">No Text</option>
                 <option value="texta">Text A</option>
@@ -117,7 +117,6 @@
 
         <!-- Result step -->
         <div class="step" id="resultStep">
-            <h2>Result</h2>
             <p id="result"></p>
             <button onclick="location.reload()">Start Over</button>
         </div>
@@ -125,43 +124,139 @@
 </div>
 
 <script>
-    let flows = [];
+    let flows = {
+	  "1": {
+		"1": "Running play",
+		"2": {
+		  "2 Defensive backs":"Running play",
+		  "Other":"Passing play"
+		},
+		"3": "Passing play"
+	  },
+	  "2": {
+		"1": "Running play",
+		"2": {
+		  "2 Linebackers":"Running play",
+		  "Other":"Passing play"
+		},
+		"3": "Passing play"
+	  },
+	  "3": {
+		"2": {
+		  "2 Defensive lineman":"Running play",
+		  "Other":"Passing play"
+		},
+		"3": "Passing play"
+	  },
+	  "4": {
+		"1": "Running play",
+		"2": {
+		  "2 Defensive players(bottom = linebacker)":"Passing play",
+		  "Other":"Running play"
+		},
+		"3": "Running play"
+	  },
+	  "5": {
+		"2": {
+		  "2 Linebackers":"Passing play",
+		  "Other":"Running play"
+		},
+		"3": "Passing play"
+	  },
+	  "6": {
+		"2": {
+		  "2 Defensive lineman":"Running play",
+		  "Other":"Passing play"
+		},
+		"3": "Passing play"
+	  },
+	  "7": {
+		"2": {
+		  "Bottom player DL2 or LB2":"Passing play",
+		  "Other":"Running play"
+		},
+		"3": "Passing play"
+	  },
+	  "8": "Running play"
+	};
     let selectedType = null;
     let selectedNumber = null;
     let selectedText = null;
 
-    // Load flow data from external JSON
-    fetch('flows.json') // Change this to your external JSON path
-        .then(response => response.json())
-        .then(data => {
-            flows = data.flows;
-        });
+    // Step 1: Image Selector
+    const types = [
+  {
+    "id": 1,
+    "image": "captain.png"
+  },
+  {
+    "id": 2,
+    "image": "clipboard.png"
+  },
+  {
+    "id": 3,
+    "image": "hand.png"
+  },
+  {
+    "id": 4,
+    "image": "heart.png"
+  },
+  {
+    "id": 5,
+    "image": "lightning.png"
+  },
+  {
+    "id": 6,
+    "image": "sniper.png"
+  },
+  {
+    "id": 7,
+    "image": "star.png"
+  },
+  {
+    "id": 8,
+    "image": "strong.png"
+  }
+];
 
-    // Load images from external JSON
-    fetch('images.json') // Change this to your external images.json path
-        .then(response => response.json())
-        .then(data => {
-            const typeImagesContainer = document.getElementById('typeImages');
-            data.forEach(type => {
-                const img = document.createElement('img');
-                img.src = type.image;
-                img.alt = `Type ${type.id}`;
-                img.addEventListener('click', () => {
-                    document.querySelectorAll('.image-selector img').forEach(img => img.classList.remove('selected'));
-                    img.classList.add('selected');
-                    selectedType = type.id;
-                    document.getElementById('nextToStep2').disabled = false;
-                });
-                typeImagesContainer.appendChild(img);
-            });
-        });
-
+    const typeImagesContainer = document.getElementById('typeImages');
     const nextToStep2 = document.getElementById('nextToStep2');
 
-    nextToStep2.addEventListener('click', () => {
+    types.forEach(type => {
+        const img = document.createElement('img');
+        img.src = type.image;
+        img.alt = `Type ${type.id}`;
+        img.addEventListener('click', () => {
+			
+            document.querySelectorAll('.image-selector img').forEach(img => img.classList.remove('selected'));
+            img.classList.add('selected');
+			checkType(type.id);
+        });
+        typeImagesContainer.appendChild(img);
+    });
+	function checkType(typeId) {
+		selectedType = typeId;
+		console.log("type: " + selectedNumber);
+      
+        if (typeof flows[typeId] == "string") {
+            showOutcome(flows[selectedType]);
+        } else {
+			console.log("show numbers ");
+			document.querySelector('div[data-number="1"]').style.display = 'none';
+			document.querySelector('div[data-number="2"]').style.display = 'none';
+			document.querySelector('div[data-number="3"]').style.display = 'none';
+			for (const key in flows[typeId]) {
+			  if (flows[typeId].hasOwnProperty(key)) {
+				document.querySelector('div[data-number="'+key+'"]').style.display = '';
+			  }
+			}
+			gotoStep2();
+		}
+    }
+	function gotoStep2() {
         document.getElementById('step1').classList.remove('active');
         document.getElementById('step2').classList.add('active');
-    });
+	}
 
     // Step 2: Number Selector
     const numberSelector = document.getElementById('numberSelector');
@@ -172,54 +267,61 @@
             document.querySelectorAll('.number-selector div').forEach(div => div.classList.remove('selected'));
             numberDiv.classList.add('selected');
             selectedNumber = parseInt(numberDiv.dataset.number);
+			checkNumber(selectedNumber);
             nextToStep3.disabled = false;
-            checkForImmediateOutcome(); // Immediately check for a flow match
+           // checkForImmediateOutcome(); // Immediately check for a flow match
         }
     });
+	function checkNumber(number) {
+		selectedNumber = number;
+		console.log("type: " + selectedType);
+		console.log("number: " + selectedNumber);
+      
+        if (typeof flows[selectedType][selectedNumber] == "string") {
+            showOutcome(flows[selectedType][selectedNumber]);
+        } else {
+			console.log("show text ");
+			const textSelect = document.getElementById('textSelect');
+			textSelect.innerHTML = '';
+			for (const key in flows[selectedType][selectedNumber]) {
+			  if (flows[selectedType][selectedNumber].hasOwnProperty(key)) {
+				// Create a new option
+				let newOption = document.createElement('option');
+				newOption.value = key;  // Set the value for the new option
+				newOption.text = key; // Set the text to display for the new option
 
-    nextToStep3.addEventListener('click', () => {
+				textSelect.add(newOption);
+			  }
+			}
+			gotoStep3();
+		}
+    }
+	function gotoStep3(){
         document.getElementById('step2').classList.remove('active');
         document.getElementById('step3').classList.add('active');
-    });
+	}
+
 
     // Step 3: Choose Optional Text
     const textSelect = document.getElementById('textSelect');
     const showResult = document.getElementById('showResult');
-    textSelect.addEventListener('change', () => {
-        selectedText = textSelect.value || null;
-        checkForImmediateOutcome(); // Check for a flow match when text is selected
-    });
 
     showResult.addEventListener('click', () => {
-        showOutcome();
+		selectedText = textSelect.value;
+
+		console.log("type: " + selectedType);
+		console.log("number: " + selectedNumber);
+		console.log("Text: " + selectedText);
+		console.log(flows[selectedType][selectedNumber][selectedText]);
+        showOutcome(flows[selectedType][selectedNumber][selectedText]);
     });
 
-    // Check if an immediate outcome is available without needing Step 3
-    function checkForImmediateOutcome() {
-        const result = flows.find(flow => 
-            flow.type === selectedType && 
-            flow.number === selectedNumber && 
-            (flow.text === selectedText || flow.text === null)
-        );
-        
-        if (result && (result.text === null || selectedText !== null)) {
-            showOutcome(result);
-        }
-    }
 
     // Show the outcome step
     function showOutcome(result) {
         document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
         document.getElementById('resultStep').classList.add('active');
-        if (!result) {
-            result = flows.find(flow => 
-                flow.type === selectedType && 
-                flow.number === selectedNumber && 
-                (flow.text === selectedText || flow.text === null)
-            );
-        }
-        const outcome = result ? result.outcome : "No matching flow";
-        document.getElementById('result').textContent = `Outcome: ${outcome}`;
+        document.getElementById('result').textContent = `${result}`;
     }
 </script>
 
